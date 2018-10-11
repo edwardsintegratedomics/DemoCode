@@ -4,11 +4,13 @@ ggdemo
 ggplot2 and dplyr
 -----------------
 
-ggplot2 and dplyr are packages that don't come with R automatically. Instead, they'll need to be downloaded. Use the below code if you haven't ever run it before:
+ggplot2, dplyr, and reshape2 are packages that don't come with R automatically. Instead, they'll need to be downloaded. Use the below code if you haven't ever run it before:
 
 > install.packages("ggplot2")
 
 > install.packages("dplyr")
+
+> install.packages("reshape2")
 
 These packages are part of the so-called ["tidyverse"](https://www.tidyverse.org/) which collects packages that share the same underlying design philosophy. This makes it really easy to send data between different packages within the tidyverse, but also makes it harder to send things in and out.
 
@@ -34,8 +36,7 @@ library(dplyr)
 
 ``` r
 library(ggplot2)
-
-
+library(reshape2)
 
 
 #Read in the csv file from the working directory
@@ -162,13 +163,13 @@ Looks good! We've got all the columns we need. I've created a data dictionary fo
 -   LOBdbase\_frag\_id: used by LOBSTAHS when working with MS<sup>n</sup> data
 -   LOBdbase\_exact\_parent\_neutral\_mass: the exact mass of the parent lipid, determined by subtracting the mass of the adduct
 -   **LOBdbase\_mz**: the mass of the lipid plus the mass of the adduct.
--   This one is bolded because we use it in Maven to look for as specific lipid.
+    -   This one is bolded because we use it in Maven to look for as specific lipid.
 -   **lipid\_class**: the lipid class (see Fahy 2005) that the lipid belongs to.
--   IP\_DAG, TAG, pigment, etc.
+    -   IP\_DAG, TAG, pigment, etc.
 -   **species**: the lipid species the lipid belongs to
--   PC, PE, PG, MGDG, SQDG, etc.
+    -   PC, PE, PG, MGDG, SQDG, etc.
 -   major\_adduct: determined by the lipid class, provides the major adduct that the lipid will form
--   NOTE: LOBSTAHS *only* uses this major adduct, and minor adducts are discarded
+    -   NOTE: LOBSTAHS *only* uses this major adduct, and minor adducts are discarded
 -   FA\_total\_no\_C: the total number of carbons in the fatty acid chains of the lipid
 -   FA\_total\_no\_DB: the total number of double bonds in the lipid
 -   degree\_oxidation: the degree of oxidation for a given lipid
@@ -190,7 +191,7 @@ Looks good! We've got all the columns we need. I've created a data dictionary fo
 -   LOBdbase\_ppm\_match: describes how closely the observed peak matches the expected. Calculated by the formula ppm= (m/z\_{obs}-m/z\_{database})/m/z\_{database}\*10^6
 -   match\_ID: Line number in LOBSTAHS
 
-Phew. Let's simplify our LOBSTAHS dataset by just grabbing the columns we want and organizing them more nicely.
+Phew. Let's simplify our LOBSTAHS dataset by just grabbing the columns and rows we wantand organizing them more nicely.
 
 Cleaning up the data
 --------------------
@@ -292,3 +293,63 @@ head(clean_LOBdata)
     ## 4           21868624           35932216           52319941
     ## 5           24897072           24025353           38152577
     ## 6           93519884          252880819          240142707
+
+Lovely! There's one more step we should take, and that's the conversion of this "wide" data set to "long" format. ggplot only likes data in "long" format, so we might as well take care of this now. Right now, each of our samples has its own column. What we'd like is for that all to fit into two simple columns: one called "sample" and one called "value". Check out [this link](https://en.wikipedia.org/wiki/Wide_and_narrow_data) if that doesn't make sense. There's also a few discussions online about it with better examples.
+
+``` r
+long_LOBdata <- clean_LOBdata %>%
+  melt(id=c("match_ID", "lipid_class", "compound_name", "species", 
+            "peakgroup_mz", "peakgroup_rt"), 
+       variable.name="sample", value.name = "intensity")
+
+head(long_LOBdata)
+```
+
+    ##   match_ID lipid_class              compound_name           species
+    ## 1        3      IP_MAG CoprostanolEsters 24:0 +4O CoprostanolEsters
+    ## 2       10      IP_DAG              DGDG 46:6 +3O              DGDG
+    ## 3       11      IP_MAG     CholesterolEsters 16:3 CholesterolEsters
+    ## 4       13         TAG              TAG 58:13 +4O               TAG
+    ## 5       14      IP_DAG              DGDG 40:2 +3O              DGDG
+    ## 6       17      IP_MAG CoprostanolEsters 22:0 +4O CoprostanolEsters
+    ##   peakgroup_mz peakgroup_rt             sample intensity
+    ## 1     825.6943    1150.5016 X0uM_24h_Orbi_0468 714108442
+    ## 2    1142.7538     970.2728 X0uM_24h_Orbi_0468 320154996
+    ## 3     636.5713     973.8676 X0uM_24h_Orbi_0468   2673205
+    ## 4    1002.7041     973.3629 X0uM_24h_Orbi_0468  32300881
+    ## 5    1066.7222     971.4368 X0uM_24h_Orbi_0468  30647366
+    ## 6     797.6632    1117.5030 X0uM_24h_Orbi_0468 230202099
+
+Finally, let's break up the new "Sample" column into something more useful. Right now, R doesn't know that we have samples from 0, 8, and 24 hours as well as 3 different treatments. We'll use the mutate() function here to create new columns at the end of the data frame to hold this ne info.
+
+``` r
+long_LOBdata <- long_LOBdata %>%
+  mutate(treatment=paste(regmatches(sample, regexpr("[[:digit:]]+", sample)), "uM"),
+         time_point=paste(regmatches(sample, gregexpr("[[:digit:]]+", 
+                                                      sample))[[1]][2], "hours"),
+         sample=paste0("Orbi_", regmatches(sample, gregexpr("[[:digit:]]+", sample))[[1]][3]),
+         intensity=intensity)
+    #Use regular expressions to extract the relevant info from the sample name
+
+head(long_LOBdata)
+```
+
+    ##   match_ID lipid_class              compound_name           species
+    ## 1        3      IP_MAG CoprostanolEsters 24:0 +4O CoprostanolEsters
+    ## 2       10      IP_DAG              DGDG 46:6 +3O              DGDG
+    ## 3       11      IP_MAG     CholesterolEsters 16:3 CholesterolEsters
+    ## 4       13         TAG              TAG 58:13 +4O               TAG
+    ## 5       14      IP_DAG              DGDG 40:2 +3O              DGDG
+    ## 6       17      IP_MAG CoprostanolEsters 22:0 +4O CoprostanolEsters
+    ##   peakgroup_mz peakgroup_rt    sample intensity treatment time_point
+    ## 1     825.6943    1150.5016 Orbi_0468 714108442      0 uM   24 hours
+    ## 2    1142.7538     970.2728 Orbi_0468 320154996      0 uM   24 hours
+    ## 3     636.5713     973.8676 Orbi_0468   2673205      0 uM   24 hours
+    ## 4    1002.7041     973.3629 Orbi_0468  32300881      0 uM   24 hours
+    ## 5    1066.7222     971.4368 Orbi_0468  30647366      0 uM   24 hours
+    ## 6     797.6632    1117.5030 Orbi_0468 230202099      0 uM   24 hours
+
+Excellent. Now that's a data set we can work with!
+
+ggplotting
+----------

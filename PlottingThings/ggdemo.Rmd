@@ -165,7 +165,7 @@ Let's take a look at our shiny clean data:
 head(clean_LOBdata)
 ```
 
-Lovely! There's one final step we should take, and that's the conversion of this
+Lovely! There's one more step we should take, and that's the conversion of this
 "wide" data set to "long" format. ggplot only likes data in "long" format, so
 we might as well take care of this now. Right now, each of our samples has its
 own column. What we'd like is for that all to fit into two simple columns:
@@ -173,14 +173,31 @@ one called "sample" and one called "value". Check out [this link](https://en.wik
 sense. There's also a few discussions online about it with better examples.
 
 ```{r reshape}
-long_LOBdata <- melt(clean_LOBdata, id=c("match_ID", "lipid_class", "compound_name",
-                                         "species", "peakgroup_mz", "peakgroup_rt"),
-                     variable.name="Sample", value.name = "Intensity")
+long_LOBdata <- clean_LOBdata %>%
+  melt(id=c("match_ID", "lipid_class", "compound_name", "species", 
+            "peakgroup_mz", "peakgroup_rt"), 
+       variable.name="sample", value.name = "intensity")
 
 head(long_LOBdata)
 ```
 
-Excellent. That's a data set we can work with!
+Finally, let's break up the new "Sample" column into something more useful. 
+Right now, R doesn't know that we have samples from 0, 8, and 24 hours as well
+as 3 different treatments. We'll use the mutate() function here to create new
+columns at the end of the data frame to hold this ne info.
+
+```{r expand}
+long_LOBdata <- long_LOBdata %>%
+  mutate(treatment=paste(regmatches(sample, regexpr("[[:digit:]]+", sample)), "uM"),
+         time_point=paste(regmatches(sample, gregexpr("[[:digit:]]+", 
+                                                      sample))[[1]][2], "hours"),
+         sample=paste0("Orbi_", regmatches(sample, gregexpr("[[:digit:]]+", sample))[[1]][3]))
+    #Use regular expressions to extract the relevant info from the sample name
+
+head(long_LOBdata)
+```
+
+Excellent. Now that's a data set we can work with!
 
 ## ggplotting
 
