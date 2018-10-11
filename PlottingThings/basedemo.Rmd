@@ -208,7 +208,7 @@ plot(1:10, bty="7", main = "Box types")
 Let's see what we can do with the LOBSTAHS data with this new plotting information.
 
 ```{r loaddata, cache=T}
-LOBdata <- read.csv("~/Desktop/LOBsetPos.csv")
+LOBdata <- read.csv("LOBsetPos.csv")
 
 #Which columns are the data in?
 datacols <- 12:29

@@ -1,0 +1,186 @@
+---
+title: "ggdemo"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## ggplot2 and dplyr
+
+ggplot2, dplyr, and reshape2 are packages that don't come with R automatically. Instead, 
+they'll need to be downloaded. Use the below code if you haven't ever run it
+before:
+
+>install.packages("ggplot2")
+
+>install.packages("dplyr")
+
+>install.packages("reshape2")
+
+These packages are part of the so-called ["tidyverse"](https://www.tidyverse.org/) 
+which collects packages that share the same underlying design philosophy. This 
+makes it really easy to send data between different packages within the
+tidyverse, but also makes it harder to send things in and out.
+
+## Loading the libraries and LOBSTAHS data
+
+I'll be demoing a lot of the ggplot functions using our LOBSTAHS data, freshly
+produced by Savio.
+
+```{r loading}
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+
+
+#Read in the csv file from the working directory
+LOBdata <- read.csv("LOBsetPos.csv")
+
+#Check that it all looks pretty
+head(LOBdata)
+
+#Save the names of the dataset as a variable
+nms <- names(LOBdata)
+```
+
+Looks good! We've got all the columns we need. I've created a data dictionary
+for it below and bolded the columns that I use the most.
+
+- X: Line number in xcms
+- **peakgroup_mz**: the m/z value of the peak group. This is essentially the mass
+of the lipid
+- peakgroup_mzmin: the m/z value at which the peak starts
+- peakgroup_mzmax: the m/z value at which the peak ends
+- **peakgroup_rt**: the retention time of the peak group. This is how polar/non-
+polar the lipid is.
+- peakgroup_rtmin: the retention time at which the peak starts
+- peakgroup_rtmax: the retention time at which the peak ends
+- npeaks: the number of nicely defined peaks. Usually equal to the number of
+samples in the data set (18)
+- X0_uM_H2O2: the number of samples in the 0 uM hydrogen peroxide treatment
+- X150_uM_H2O2: the number of samples in the 150 uM hydrogen peroxide treatment
+- X30_uM_H2O2: the number of samples in the 30 uM hydrogen peroxide treatment
+- **Orbi_whatever**: the intensity recorded for a given lipid for a given 
+sample. This tells us how much of a given lipid is present.
+- xcms_peakgroup: used for bug testing
+- isotopes: describes the isotopes found in the data set and possible overlaps
+- CAMERA_pseudospectrum: used for bug testing
+- LOBdbase_frag_id: used by LOBSTAHS when working with MS<sup>n</sup> data
+- LOBdbase_exact_parent_neutral_mass: the exact mass of the parent lipid, 
+determined by subtracting the mass of the adduct
+- **LOBdbase_mz**: the mass of the lipid plus the mass of the adduct. 
+    - This one is bolded because we use it in Maven to look for as specific lipid.
+- **lipid_class**: the lipid class (see Fahy 2005) that the lipid belongs to.
+    - IP_DAG, TAG, pigment, etc.
+- **species**: the lipid species the lipid belongs to
+    - PC, PE, PG, MGDG, SQDG, etc.
+- major_adduct: determined by the lipid class, provides the major adduct
+that the lipid will form
+    - NOTE: LOBSTAHS *only* uses this major adduct, and minor adducts are discarded
+- FA_total_no_C: the total number of carbons in the fatty acid chains of the
+lipid
+- FA_total_no_DB: the total number of double bonds in the lipid
+- degree_oxidation: the degree of oxidation for a given lipid
+- elem_formula: the elemental formula of the given lipid compound. Usually not
+unique due to regioisomers
+- **compound_name**: the name of the compound. Includes oxidation information
+- **the C series**: measures of confidence in the sample annotation. See Collins
+et al. 2016
+    - C1: Denotes a good, high confidence annotation
+    - C1x: Denotes a good, high confidence annotation
+    - C2a: Denotes a good, high confidence annotation
+    - C2b: Denotes a good, high confidence annotation
+    - C3r: Denotes regioisomers
+    - C3f: Compound's m/z was identical to a competing assignment
+    - C3c: Compounds isobaric to this were also present
+    - C4: Lipid species was *not* formed by a major adduct and was thus discarded
+    - C5: Lipid species was *not* formed by a major adduct and was thus discarded
+    - C6a: ???
+    - C6b: ???
+- casecodes: lists the C series that the compound was flagged with
+- LOBdbase_ppm_match: describes how closely the observed peak matches the
+expected. Calculated by the formula ppm= (m/z_{obs}-m/z_{database})/m/z_{database}*10^6
+- match_ID: Line number in LOBSTAHS
+
+Phew. Let's simplify our LOBSTAHS dataset by just grabbing the columns and rows 
+we wantand organizing them more nicely.
+
+## Cleaning up the data
+
+Now, the data here is *everything*. But for exploratory and introductory
+analyses, we don't want to have to reference thick books and consolidate
+retention times - we'd rather just use the high-confidence annotations.
+To do that, I'll be filtering out the rows that belong to either C1, C1x, C2a or
+C2b. The command here is filter(), from dplyr, which lets me grab rows based
+on the value of a given row. I'll do this a couple different ways.
+
+```{r cleaningrows}
+#The long, terrible way: throw out each non-high-confidence annotation one at a time
+clean_LOBdata <- filter(LOBdata, LOBdata$C3c!=1)
+clean_LOBdata <- filter(clean_LOBdata, C3f!=1)
+clean_LOBdata <- filter(clean_LOBdata, C3r!=1)
+clean_LOBdata <- filter(clean_LOBdata, C4!=1)
+clean_LOBdata <- filter(clean_LOBdata, C5!=1)
+clean_LOBdata <- filter(clean_LOBdata, C6a!=1)
+clean_LOBdata <- filter(clean_LOBdata, C6b!=1)
+
+
+#The logical way
+clean_LOBdata <- filter(LOBdata, C3c!=1 & C3f!=1 & C3r!=1 & C4!=1 & C5!=1 &
+                          C6a!=1 & C6b!=1)
+    #The ampersand above is used as an "and" logic operator
+
+#The *almost* dplyr way
+clean_LOBdata <- filter(mutate(LOBdata, ConfVals=C3c+C3f+C3r+C4+C5+C6a+C6b),
+                        ConfVals==0)
+
+#The dplyr way
+clean_LOBdata <- LOBdata %>%
+  mutate(ConfVals=C3c+C3f+C3r+C4+C5+C6a+C6b) %>%
+  filter(ConfVals==0)
+    #The %>% is called a "pipe" and passes output from one function to the 
+    #other. This makes the code that would normally be nested much more readable
+```
+
+The above code reduces our data set from two thousand compounds down to 223, but
+we're *very* sure all of those are what we think they are. Now that the rows are
+nice, we can clean up the columns.
+
+Here, I'll be using the "select" command from the dplyr package. It lets me grab
+columns by either number or name.
+
+```{r cleaningcols}
+clean_LOBdata <- select(clean_LOBdata, 
+                        c("match_ID", "lipid_class", "compound_name", "species",
+                          "peakgroup_mz", "peakgroup_rt", 12:29))
+    #Notice that I'm able to use both column names and the column index to grab
+    #these values, rather than needing to list out the Orbi names
+```
+
+Let's take a look at our shiny clean data:
+
+```{r lookabout}
+head(clean_LOBdata)
+```
+
+Lovely! There's one final step we should take, and that's the conversion of this
+"wide" data set to "long" format. ggplot only likes data in "long" format, so
+we might as well take care of this now. Right now, each of our samples has its
+own column. What we'd like is for that all to fit into two simple columns:
+one called "sample" and one called "value". Check out [this link](https://en.wikipedia.org/wiki/Wide_and_narrow_data) if that doesn't make 
+sense. There's also a few discussions online about it with better examples.
+
+```{r reshape}
+long_LOBdata <- melt(clean_LOBdata, id=c("match_ID", "lipid_class", "compound_name",
+                                         "species", "peakgroup_mz", "peakgroup_rt"),
+                     variable.name="Sample", value.name = "Intensity")
+
+head(long_LOBdata)
+```
+
+Excellent. That's a data set we can work with!
+
+## ggplotting
+
