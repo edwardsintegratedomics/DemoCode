@@ -320,15 +320,13 @@ head(long_LOBdata)
     ## 5    1066.7222     971.4368 X0uM_24h_Orbi_0468  30647366
     ## 6     797.6632    1117.5030 X0uM_24h_Orbi_0468 230202099
 
-Finally, let's break up the new "Sample" column into something more useful. Right now, R doesn't know that we have samples from 0, 8, and 24 hours as well as 3 different treatments. We'll use the mutate() function here to create new columns at the end of the data frame to hold this ne info.
+Finally, let's break up the new "Sample" column into something more useful. Right now, R doesn't know that we have samples from 0, 8, and 24 hours as well as 3 different treatments. We'll use the mutate() function here to create new columns at the end of the data frame to hold this new info.
 
 ``` r
 long_LOBdata <- long_LOBdata %>%
   mutate(treatment=paste(regmatches(sample, regexpr("[[:digit:]]+", sample)), "uM"),
-         time_point=paste(regmatches(sample, gregexpr("[[:digit:]]+", 
-                                                      sample))[[1]][2], "hours"),
-         sample=paste0("Orbi_", regmatches(sample, gregexpr("[[:digit:]]+", sample))[[1]][3]),
-         intensity=intensity)
+         time_point=sub("_", "", paste(regmatches(sample, regexpr("_[[:digit:]]+", sample)), "hours")),
+         sample=paste("Orbi_", regmatches(sample, regexpr("04[[:digit:]]+", sample))))
     #Use regular expressions to extract the relevant info from the sample name
 
 head(long_LOBdata)
@@ -341,15 +339,200 @@ head(long_LOBdata)
     ## 4       13         TAG              TAG 58:13 +4O               TAG
     ## 5       14      IP_DAG              DGDG 40:2 +3O              DGDG
     ## 6       17      IP_MAG CoprostanolEsters 22:0 +4O CoprostanolEsters
-    ##   peakgroup_mz peakgroup_rt    sample intensity treatment time_point
-    ## 1     825.6943    1150.5016 Orbi_0468 714108442      0 uM   24 hours
-    ## 2    1142.7538     970.2728 Orbi_0468 320154996      0 uM   24 hours
-    ## 3     636.5713     973.8676 Orbi_0468   2673205      0 uM   24 hours
-    ## 4    1002.7041     973.3629 Orbi_0468  32300881      0 uM   24 hours
-    ## 5    1066.7222     971.4368 Orbi_0468  30647366      0 uM   24 hours
-    ## 6     797.6632    1117.5030 Orbi_0468 230202099      0 uM   24 hours
+    ##   peakgroup_mz peakgroup_rt     sample intensity treatment time_point
+    ## 1     825.6943    1150.5016 Orbi_ 0468 714108442      0 uM   24 hours
+    ## 2    1142.7538     970.2728 Orbi_ 0468 320154996      0 uM   24 hours
+    ## 3     636.5713     973.8676 Orbi_ 0468   2673205      0 uM   24 hours
+    ## 4    1002.7041     973.3629 Orbi_ 0468  32300881      0 uM   24 hours
+    ## 5    1066.7222     971.4368 Orbi_ 0468  30647366      0 uM   24 hours
+    ## 6     797.6632    1117.5030 Orbi_ 0468 230202099      0 uM   24 hours
 
 Excellent. Now that's a data set we can work with!
 
 ggplotting
 ----------
+
+ggplots are built in a layered format, just like base plots, but they're all written on the same line of code and connected via "+" signs.
+
+All ggplots consist of 3 things - a call to ggplot(), a "geom" that determines what shape the plot will be, and "aes()"thetics that actually fill in the data. For example, a "skeleton" ggplot call might be:
+
+> ggplot() + geom\_something(data=, aes(x= ))
+
+However, this format is flexible. Data could be called by the ggplot, or the aes call could go there. In the future, this will make a difference, but for right now it's flexible.
+
+Some common ggplots are shown below:
+
+``` r
+#Create some fake data in long format
+phytoplankton <- rep(c("Diatom", "Cocco", "Dino"), each=24)
+lipid_class <- rep(rep(c("IP_DAG", "TAG", "FA"), each=8), 3)
+intensity <- rep(c(20, 10, 30), each=24)+rnorm(72)
+df <- data.frame(phytoplankton, lipid_class, intensity)
+
+    #Always a good place to start
+ggplot() + geom_point(data = df, aes(x=phytoplankton, y=intensity))
+```
+
+![](ggdemo_files/figure-markdown_github/ggbasics-1.png)
+
+``` r
+    #Jittering spreads out the data to avoid overlap
+ggplot(data = df) + geom_jitter(aes(x=phytoplankton, y=intensity))
+```
+
+![](ggdemo_files/figure-markdown_github/ggbasics-2.png)
+
+``` r
+    #Boxplots are a nice way to present this data
+ggplot(data = df, aes(x=phytoplankton, y=intensity)) + geom_boxplot()
+```
+
+![](ggdemo_files/figure-markdown_github/ggbasics-3.png)
+
+However, ggplot also has a lot of customization options, just like base plot. Let's add some color to these - note that ggplot automatically slices the data for us, rather than having to make several separate calls to boxplot in different colors
+
+``` r
+ggplot(data = df) + geom_boxplot(aes(x=phytoplankton, 
+                                     y=intensity, 
+                                     color=lipid_class))
+```
+
+![](ggdemo_files/figure-markdown_github/prettygg-1.png)
+
+Sometimes, it's a good idea to "facet" your data, or present it in entirely separate regions within the plot area. To do this, we add (+) the facet\_wrap() layer. There's a tilde (~) before the thing you're wrapping around, don't forget!
+
+``` r
+ggplot(data = df) + 
+  geom_boxplot(aes(x=phytoplankton, y=intensity, color=lipid_class)) +
+  facet_wrap(~phytoplankton, scales = "free_x")
+```
+
+![](ggdemo_files/figure-markdown_github/prettygg2-1.png)
+
+``` r
+ggplot(data = df) + 
+  geom_boxplot(aes(x=phytoplankton, y=intensity, color=lipid_class)) +
+  facet_wrap(~lipid_class)
+```
+
+![](ggdemo_files/figure-markdown_github/prettygg2-2.png)
+
+Note that slicing the data in this way lets us compare two different things. In the first one, we're emphasizing the similarity of the lipid classes within the organisms. In the second, we're emphasizing how each phytoplankter has a significantly different lipid signature from the others.
+
+As with base plot, you can control the axes, text, and titles, but here it's all done with the addition of a new layer by "+" rather than a second line.
+
+``` r
+ggplot() + geom_jitter(data=df, aes(x=phytoplankton, y=intensity, color=lipid_class)) +
+  ylab("") + #remove y axis
+  xlab("This is the x axis") + #add x axis label
+  ggtitle("This is the title") + #add a title
+  scale_x_discrete(breaks=c("Diatom", "Cocco", "Dino"), #move x axis around
+                   labels=c("Bacillariophyceae", "Coccolithophore", "Dinoflagellate"))+
+  scale_y_continuous(breaks = seq(10,30,1)) + #make finer slices in the background
+  theme(axis.title.x = element_text(face="bold", colour="#990000", size=20)) #change axis text color
+```
+
+![](ggdemo_files/figure-markdown_github/gaudygg-1.png)
+
+You may have also noticed that ggplot creates a legend on the side by default - which is great, unless it becomes another thing to change.
+
+``` r
+ggplot(data = df, aes(x=phytoplankton, y=intensity, color=lipid_class)) + 
+  geom_point() +
+  scale_color_discrete(breaks=c("IP_DAG", "TAG", "FA"),#change the order
+                       name="This is the legend") + #change the title
+  theme(legend.title = element_text(colour="blue", size=16, face="bold"),
+        legend.text = element_text(color = "skyblue", size = 8), #change text colors
+  legend.background = element_rect(fill="gray90", size=.5, linetype="dotted"), #add a background
+  legend.position = "top") #move it to the top
+```
+
+![](ggdemo_files/figure-markdown_github/legendgg-1.png)
+
+Some LOBSTAHS plots
+-------------------
+
+Let's recreate the plots we covered in the demo session. We've already got our dataset cleaned up and ready to go, so we can jump right in to graphing it.
+
+``` r
+ggplot(data = long_LOBdata) + geom_point(aes(x=peakgroup_rt, y=peakgroup_mz,
+                                          color=species))
+```
+
+![](ggdemo_files/figure-markdown_github/LOBbase-1.png)
+
+Looks pretty busy. Let's clear out all the lipid species that Collins et al. also didn't use - leaving behind PC, PE, PG, SQDG, TAG, DGCC, DGDG, and DGTS\_DGTA.
+
+``` r
+#First, filter out everything that isn't what we want
+species_to_keep <- c("PC", "PE", "PG", "SQDG", "TAG", "DGCC", "DGDG", "DGTS_DGTA")
+collins_LOBdata <- filter(long_LOBdata, species%in%species_to_keep)
+
+ggplot(data = collins_LOBdata) + 
+  geom_point(aes(x=peakgroup_rt, y=peakgroup_mz, color=species)) +
+  ylab("m/z") +
+  xlab("Corrected retention time (min)") +
+  scale_color_discrete(name="Lipid species") +
+  theme(axis.title.y = element_text(face="italic"))
+```
+
+![](ggdemo_files/figure-markdown_github/Collinsplot-1.png)
+
+Looks good! Collins et al. also used the oxidation degree to add shapes, but that's a good exercise for you to try on your own. (Hint: you'll have to add an degree\_oxidation column to long\_LOBdata, and the ggplot argument is "shape")
+
+We can also compare specific lipid species across the three treatments and watch how they change over time:
+
+``` r
+IPDAGs <- filter(long_LOBdata, lipid_class=="IP_DAG")
+
+#Define custom factor levels so the facets and boxplots are in the right order
+IPDAGs$treatment <- factor(IPDAGs$treatment, levels=c("0 uM", "30 uM", "150 uM"))
+IPDAGs$time_point <- factor(IPDAGs$time_point, levels = c("4 hours", "8 hours", "24 hours"))
+
+ggplot(data = IPDAGs) + geom_boxplot(aes(x=time_point, y=intensity, color=species)) +
+  facet_wrap(~treatment)
+```
+
+![](ggdemo_files/figure-markdown_github/Collins-1.png)
+
+``` r
+#Better way to slice the data:
+ggplot(data = IPDAGs) + geom_boxplot(aes(x=time_point, y=intensity, color=treatment)) +
+  facet_wrap(~species, scales = "free_y") +
+  theme(axis.text.x  = element_text(angle=90, vjust=1)) +
+  ylab("m/z") +
+  xlab("Time sampled") +
+  ggtitle("All IP-DAGs") +
+  scale_color_discrete(name="Peroxide treatment") +
+  theme(axis.title.y = element_text(face="italic"))
+```
+
+![](ggdemo_files/figure-markdown_github/Collins-2.png)
+
+``` r
+ggplot(data = IPDAGs) + geom_boxplot(aes(x=treatment, y=intensity, color=time_point)) +
+  facet_wrap(~species, scales = "free_y") +
+  theme(axis.text.x  = element_text(angle=90, vjust=1)) +
+  ylab("m/z") +
+  xlab("Peroxide treatment") +
+  ggtitle("All IP-DAGs") +
+  scale_color_discrete(name="Time sampled") +
+  theme(axis.title.y = element_text(face="italic"))
+```
+
+![](ggdemo_files/figure-markdown_github/Collins-3.png)
+
+``` r
+#What's that? An interesting subgroup analysis?
+
+BLLs <- filter(long_LOBdata, species=="BLL")
+ggplot(data = IPDAGs) + geom_boxplot(aes(x=treatment, y=intensity, color=time_point)) +
+  theme(axis.text.x  = element_text(angle=90, vjust=1)) +
+  ylab("m/z") +
+  xlab("Peroxide treatment") +
+  ggtitle("BLL subgroup analysis") +
+  scale_color_discrete(name="Time sampled") +
+  theme(axis.title.y = element_text(face="italic"))
+```
+
+![](ggdemo_files/figure-markdown_github/Collins-4.png)
