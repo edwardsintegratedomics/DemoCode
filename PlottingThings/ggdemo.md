@@ -500,11 +500,10 @@ ggplot(data = IPDAGs) + geom_boxplot(aes(x=time_point, y=intensity, color=specie
 ggplot(data = IPDAGs) + geom_boxplot(aes(x=time_point, y=intensity, color=treatment)) +
   facet_wrap(~species, scales = "free_y") +
   theme(axis.text.x  = element_text(angle=90, vjust=1)) +
-  ylab("m/z") +
+  ylab("Intensity") +
   xlab("Time sampled") +
   ggtitle("All IP-DAGs") +
-  scale_color_discrete(name="Peroxide treatment") +
-  theme(axis.title.y = element_text(face="italic"))
+  scale_color_discrete(name="Peroxide treatment")
 ```
 
 ![](ggdemo_files/figure-markdown_github/Collins-2.png)
@@ -513,11 +512,10 @@ ggplot(data = IPDAGs) + geom_boxplot(aes(x=time_point, y=intensity, color=treatm
 ggplot(data = IPDAGs) + geom_boxplot(aes(x=treatment, y=intensity, color=time_point)) +
   facet_wrap(~species, scales = "free_y") +
   theme(axis.text.x  = element_text(angle=90, vjust=1)) +
-  ylab("m/z") +
+  ylab("Intensity") +
   xlab("Peroxide treatment") +
   ggtitle("All IP-DAGs") +
-  scale_color_discrete(name="Time sampled") +
-  theme(axis.title.y = element_text(face="italic"))
+  scale_color_discrete(name="Time sampled")
 ```
 
 ![](ggdemo_files/figure-markdown_github/Collins-3.png)
@@ -528,11 +526,49 @@ ggplot(data = IPDAGs) + geom_boxplot(aes(x=treatment, y=intensity, color=time_po
 BLLs <- filter(long_LOBdata, species=="BLL")
 ggplot(data = IPDAGs) + geom_boxplot(aes(x=treatment, y=intensity, color=time_point)) +
   theme(axis.text.x  = element_text(angle=90, vjust=1)) +
-  ylab("m/z") +
+  ylab("Intensity") +
   xlab("Peroxide treatment") +
   ggtitle("BLL subgroup analysis") +
-  scale_color_discrete(name="Time sampled") +
-  theme(axis.title.y = element_text(face="italic"))
+  scale_color_discrete(name="Time sampled")
 ```
 
 ![](ggdemo_files/figure-markdown_github/Collins-4.png)
+
+Finally, we can use some of the code I wrote over the summer to get a better sense for how the lipidome changes across these samples.
+
+Heatmap of the lipidome across samples, grouped by lipid species:
+
+``` r
+fold_samps <- long_LOBdata %>%
+  group_by(sample) %>%
+  mutate(fold_change = log2(intensity/mean(intensity)))
+
+ggplot(data = fold_samps, aes(x=species, y=sample)) + 
+  geom_tile(aes(fill=fold_change), color="white") +
+  scale_fill_gradient2(low = "darkorchid4", mid = "grey90", high = "darkgreen", na.value = "grey90") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ylab("Sample number") + xlab("Lipid Species")
+```
+
+![](ggdemo_files/figure-markdown_github/SURF-1.png)
+
+Note that these haven't been normalized to DNPPE (the internal standard) - might be another good thing to try doing on your own!
+
+``` r
+norm.rel.IPDAGs <- IPDAGs %>%
+  group_by(sample) %>%
+  mutate(proportion=(intensity/sum(intensity))*100)
+
+#Aaaaand replot.
+norm.rel.IPDAGs %>% group_by(sample) %>%
+  ggplot(aes(x=sample, y=proportion)) + 
+  geom_bar(aes(fill=species), stat = "identity") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ylab("Relative proportion") + xlab("Sample") +
+  scale_fill_discrete(name="Lipid Species") +
+  ggtitle("IP-DAGs in the PtH2O2lipids Dataset")
+```
+
+![](ggdemo_files/figure-markdown_github/SURFplot-1.png)
+
+Et voila!
