@@ -667,16 +667,5 @@ In addition to iPyParallel, one of the newer tools in the Python space is [Dask]
 
 # How to get additional help
 
- - For technical issues and questions about using Savio: 
-    - brc-hpc-help@berkeley.edu
- - For questions about computing resources in general, including cloud computing: 
-    - brc@berkeley.edu
-    - office hours: Tues. 10:00-12:00, Wed. 1:30-3:30, Thur. 9:30-11:30 here in AIS
- - For questions about data management (including HIPAA-protected data): 
-    - researchdata@berkeley.edu
-    - office hours: Tues. 10:00-12:00, Wed. 1:30-3:30, Thur. 9:30-11:30 here in AIS
-
-
-# Upcoming events
-
- - Savio hands-on installation workshop, mid-late October or early November.
+Ask Will. He's the point-of-contact for the Edwards Lab undergrads, and Savio doesn't have the resources to handle every
+possible problem we'll all stumble onto. If nobody can figure it out, he'll go in to Savio himself to get help.
