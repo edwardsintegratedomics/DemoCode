@@ -25,7 +25,7 @@ There are rather a lot of commands that are used in the command line, so here's 
 |---|---|---|---|---|
 | ssh | Access a "**s**ecure **sh**ell" - a terminal - on another computer | None | Use [username]\@hpc.brc.berkeley.edu to submit jobs and look around, and [username]\@dtn.brc.berkeley.edu to move files. Be ready with password! | ssh wkumler\@hpc.brc.berkeley.edu
 | scp | Transfers data between your laptop and Savio | -r "recursive" | Specify where the file is, then where you want it to go. Use dtn.brc.berkeley.edu, not hpc. Copies files, doesn't move them. Remember to include file names on both ends. Be ready with password!|
-scp "~/Documents/File1.txt" "wkumler\@dtn.brc.berkeley.edu:~/Documents/File1.txt"
+scp "\~/Documents/File1.txt" "wkumler\@dtn.brc.berkeley.edu:\~/Documents/File1.txt"
 | sbatch | **S**ubmit a **batch** job to the scheduler | None | This should be a .sh script with sbatch info in it, not a .R script| sbatch "Run_My_R_Script.sh" |
 | squeue | Checks the scheduler's queue | -u "user" | If used without -u argument, will find all jobs for all people currently scheduled. Good way to check if your job is still running | >squeue -u wkumler|
 | wwall | Checks current CPU usage for a job | --job-id=[] | Use the job ID obtained from squeue. Only works while a job is actually running| >wwall --job-id=3424217 |
@@ -76,3 +76,4 @@ And Ctrl-O to save and Ctrl-X to exit.
 
 Fair warning though - doing this will also try to load these modules when you login to the dtn nodes, and won't be able to because the dtn nodes don't let you load modules. (They're optimized for data transfer, not programming.) However, if you're confident you've edited your .bashrc file correctly, you can ignore the "module not found error" that pops up when you transfer files.
 
+Et voila!
