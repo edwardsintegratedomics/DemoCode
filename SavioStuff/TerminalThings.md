@@ -6,10 +6,10 @@ There are rather a lot of commands that are used in the command line, so here's 
 
 | Command | What's it do? | Options | Notes | Example |
 |---|---|---|---|---|
-|pwd| **P**rints **w**orking **d**irectory | None | |
-|ls|**L**i**s**t files in working directory| -l "long format" | |
-| | | -a "all files" | |
-|cd|**C**hange **d**irectory - moves between folders| None | Can use "cd .." to go up one directory|
-|mkdir|**M**a**k**e **dir**ectory - creates a folder| None | |
-|rmdir|**R**e**m**ove a directory - delete a folder| None | Only works on empty folders |
-|touch|Creates an empty file|
+|pwd| **P**rints **w**orking **d**irectory | None | >pwd |
+|ls|**L**i**s**t files in working directory| -l "long format" | >ls -l |
+| | | -a "all files" | ls -a |
+|cd|**C**hange **d**irectory - moves between folders| None | Can use "cd .." to go up one directory| >cd ~/Desktop |
+|mkdir|**M**a**k**e **dir**ectory - creates a folder| None | | >mkdir "Folder1" |
+|rmdir|**R**e**m**ove a directory - delete a folder| None | Only works on empty folders | >rmdir "Folder1" |
+|touch|Creates an empty file| None | Remember to specify file ending (.txt, .sh) | >touch "File1.txt" |
