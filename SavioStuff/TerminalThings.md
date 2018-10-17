@@ -14,12 +14,13 @@ There are rather a lot of commands that are used in the command line, so here's 
 |rmdir|**R**e**m**ove a **dir**ectory - delete a folder| None | Only works on empty folders | >rmdir "Folder1" |
 |touch|Creates an empty file| None | Remember to specify file ending (.txt, .sh) | >touch "File1.txt" |
 |rm|**R**e**m**oves a file| -r "recursive" | Be careful with this! There's no "undo". Use the -r flag to delete a directory with things in it | > rm -r "FullFolder"
-| | | | | rm "File1.txt" |
-| less | Read the lines of a file, using arrow keys to navigate | None | No editing power in this mode, use nano to make changes | less "File1.txt" |
-| nano | Edit a file from command line | None | Use Ctrl-O to save, Ctrl-X to exit. On Mac, Cmd-O and Cmd-X, respectively| nano "File1.txt" |
+| | | | | >rm "File1.txt" |
+| less | Read the lines of a file, using arrow keys to navigate | None | No editing power in this mode, use nano to make changes | >less "File1.txt" |
+| nano | Edit a file from command line | None | Use Ctrl-O to save, Ctrl-X to exit. On Mac, Cmd-O and Cmd-X, respectively| >nano "File1.txt" |
 
 
 ### Savio specific stuff:
 
 | Command | What's it do? | Options | Notes | Example |
+|---|---|---|---|---|
 | ssh | Access a "**s**ecure **sh**ell" - a terminal - on another computer | None | Use [username]\@hpc.brc.berkeley.edu to submit jobs and look around, and [username]\@dtn.brc.berkeley.edu to move files. Be ready with password! | ssh wkumler\@hpc.brc.berkeley.edu
