@@ -11,12 +11,16 @@ A sample batch script is written below:
 
 >\#!/bin/bash
 
+>\# Job name
 >\#SBATCH --job-name=test
 
+>\# Account
 >\#SBATCH --account=co_stat
 
+>\# Partition
 >\#SBATCH --partition=savio2
 
+>\# Wall clock time
 >\#SBATCH --time=00:00:30
 
 > R CMD BATCH My_R_Script.R
