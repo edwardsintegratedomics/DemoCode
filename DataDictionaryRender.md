@@ -69,7 +69,7 @@ Better known as membrane lipids, this group contains the classic [phospholipids]
 -   **BLL** - General betaine-like lipids.
 -   **DGCC** - Specific BLL. Properly known as diacylglycerylcarboxyhydroxymethylcholine.
 -   **S\_DGCC** - ??? Probably some form of DGCC.
--   **DGTS\_DGTA** - Two specific BLLs, cannot be separated via the Van Mooy Lab mass spec setup because they're structural isomers and are thus grouped together. Properly known as diacylglyceryl-N,N,N-trimethylhomoserine and diacylglycerylhydroxymethyl-N,N,N-trimethyl β-alanine.
+-   **DGTS\_DGTA** - Two specific BLLs, cannot be separated via the Van Mooy Lab mass spec setup because they're structural isomers and are thus grouped together. Properly known as diacylglyceryl-N,N,N-trimethylhomoserine and diacylglycerylhydroxymethyl-N,N,N-trimethyl Î²-alanine.
 
 Glycolipids are lipid compounds with sugars as the headgroup.
 
@@ -134,9 +134,12 @@ This is sometimes used as a lock-mass, and artificially introduced into the samp
     -   Can also be a degradation product
 -   **Croco** - run away, crocodiles found in sample.
     -   Just kidding, Will has no idea.
+    -   From the VM lab: crocoxanthin (check DHI pigments pdf)
 -   **Dd\_Ddc** - ??? also no idea. Despite the name, not deuterated. Possibly deoxygenated?
 -   **Dt** - Will doesn't even know how to *start* looking this one up.
+    -   From the VM lab: possibly diatoxanthin?
 -   **Echin** - Probably [echinenone](https://en.wikipedia.org/wiki/Echinenone)
+    -   From the VM lab: echinenone
 -   **Fuco** - [Fucoxanthin](https://en.wikipedia.org/wiki/Fucoxanthin). Found in brown algae (e.g. diatoms, kelps) and is responsible for their color
 -   **Lut** - [Lutein](https://en.wikipedia.org/wiki/Lutein).
 -   **Neox\_Nos** - Some form of [neoxanthin](https://en.wikipedia.org/wiki/Neoxanthin), a group of molecules used by the cell to reduce photooxidative stress
