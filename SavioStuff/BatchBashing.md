@@ -88,4 +88,18 @@ do now is to run the following command:
 
 >sbatch Run_My_R_Script.sh
 
-Et voila!
+### Watching jobs run
+
+Once you've submitted a job, it's often a good idea to keep track of it. There are a few ways of doing this.
+
+#### Tracking .Rout changes
+
+Once the job starts running, it'll produce an output file with the same name as your R script file, but will have an .Rout file name instead of .R. If we access this file using `less`, we can follow along as it's created. This simulates the output we'd get if we were running the scripts interactively. Use the "End" button to request an updated output file.
+
+#### Using srun and top
+
+If we want information about how the core itself is handling the job, we can log into the node using srun and th job id:
+
+>srun --jobid=(JOB ID NUMBER HERE) --pty /bin/bash
+
+This logs us into the node on which our job is running, and we can run our own instances of R or run other things in the background. A useful command is `top` which shows us the most memory intensive processes (hopefully R). It also lets us check how many instances of R are running - a proxy for the degree of parallelization.
