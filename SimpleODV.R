@@ -29,7 +29,7 @@ zaxis <- "intensity"
 xunits <- "Km"
 
 # What do you want the axis labels to be?
-xlabel <- "Distance"
+xlabel <- NULL
 ylabel <- "Depth"
 zlabel <- "Intensity"
 
