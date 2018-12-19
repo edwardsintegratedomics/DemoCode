@@ -62,9 +62,8 @@ ODV <- function(data) {
                  alpha = 0.2) +
     scale_y_reverse() +
     scale_x_continuous(breaks=long_samples_i[["xaxis"]],
-                     labels=paste(xaxis, long_samples_i[["xaxis"]])) +
+                     labels=paste(xunits, long_samples_i[["xaxis"]])) +
     ylab(ylabel) + xlab(xlabel)
-  print(xlab)
   return(gp)
 }
 
