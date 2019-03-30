@@ -103,3 +103,13 @@ If we want information about how the core itself is handling the job, we can log
 >srun --jobid=(JOB ID NUMBER HERE) --pty /bin/bash
 
 This logs us into the node on which our job is running, and we can run our own instances of R or run other things in the background. A useful command is `top` which shows us the most memory intensive processes (hopefully R). It also lets us check how many instances of R are running - a proxy for the degree of parallelization.
+
+### Running an interactive job
+
+Rather than starting a batch job, we can also just ask for server time directly. This is great for debugging and handling errors, but does tend to use up computer time quite quickly becuase you're billed for all the time you're sitting on a node, regardless of whether you're running anything on it.
+
+>srun -A fc_surfwill -p savio --nodes=1 -t 30:0 --pty bash
+
+Here, we start up a single node on the Savio partition and request it for half an hour, billing it to the fc_surfwill account. Not sure what --pty does, but adding "bash" at the end launches us into a bash shell. We *could* launch direcly into R, but it's often a good idea to run bash first and quick to launch R from within bash.
+
+
