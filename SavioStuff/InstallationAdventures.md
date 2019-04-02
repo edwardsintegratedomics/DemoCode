@@ -9,7 +9,7 @@ However, before you start, make sure it's not already installed somewhere:
 load only the programs and processes that you need within a given session, keeping the others out
 of the way but still accessible if need be. These modules handle the vast majority of all the programs
 that need ot be run on the cluster, whether they're editors/IDEs, version control software, programming
-languages, or something else. Check out my documentation on modules within the TerminalThings doc for 
+languages, or something else. Check out my documentation on modules within the [TerminalThings doc](https://github.com/edwardsintegratedomics/DemoCode/blob/master/SavioStuff/TerminalThings.md) for 
 more info. 
 
 If you think you need to install software, check the modules. No, seriously, check the modules.
@@ -59,8 +59,8 @@ For example,
 >install.packages("dplyr", lib="/global/home/groups/fc_surfwill/modfiles")
 
 This puts the package information in our group directory so that everyone can access it. If you haven't already
-modified your $MODULEPATH and $R_LIBS_USER variables to refer to this directory, head over to my TerminalThings
-doc and do that now, or R won't know to look there for your new packages when you ask to load them.
+modified your $MODULEPATH and $R_LIBS_USER variables to refer to this directory, head over to my [TerminalThings
+doc](https://github.com/edwardsintegratedomics/DemoCode/blob/master/SavioStuff/TerminalThings.md) and do that now, or R won't know to look there for your new packages when you ask to load them.
 
 #### Installing from a nonstandard location
 
@@ -80,11 +80,6 @@ normal CRAN mirrors. This is only necessary for packages coming from Bioconducto
 worth trying to skip this argument and only using it once R tells you something like `[PACKAGE NAME] is
 unavailable (for R version x.xx.xx)`
 
-Of course, this often needs to be combined with the above argument if the package is being installed *from*
-a nonstandard place *to* a nonstandard place, and the arguments can be chained normally via commas:
-
->install.packages("LOBSTAHS", repos="http://bioconductor.org/packages/3.8/bioc/", lib="/global/home/groups/fc_surfwill/modfiles")
-
 #### Installing with additional configure flags
 
 Finally, you may need to specify additional configuration arguments to the package installer. These are called *flags*,
@@ -101,4 +96,29 @@ For example,
 
 >install.packages("Rmpfr", configure.args = c(Rmpfr = "--with-mpfr-include=/global/home/groups/fc_surfwill/modfiles/mpfr-etc"))
 
->install.packages("ncdf4", configure.args = c(ncdf4 = "--with-nc-config=/global/home/groups/fc_surfwill/modfiles/netcdf-base/netcdf-4.6.3/nc-config"))
+>install.packages("ncdf4", configure.args = c(ncdf4 = "--with-nc-config=/global/home/groups/fc_surfwill/modfiles/netcdf-base/netcdf-4.6.3/nc-config --with-ncdf4-enabled --with-dap"))
+
+Note that while the above code shows up on multiple lines in Github, it's actually all in the same line in the terminal. Usually safest to write it in your favorite plaintext editor then copy/paste it over (use right click if Ctrl-C doesn't work)
+
+#### Installing with multiple options
+
+Of course, the above arguments often need to be combined if the package is being installed *from*
+a nonstandard place *to* a nonstandard place, with or without additional flags, and the arguments 
+can be chained normally via commas:
+
+>install.packages("LOBSTAHS", repos="http://bioconductor.org/packages/3.8/bioc/", lib="/global/home/groups/fc_surfwill/modfiles", configure.args = c(Rmpfr = "--with-utility-writing=/global/home/groups/fc_surfwill/modfiles/write-script"))
+
+### Installing your very own software
+
+Okay, so you're not looking to install anything as simple as an R package. Well, Savio can handle additional software but there are a few restrictions due to the working environment. They're listed in more detail [here](https://research-it.berkeley.edu/services/high-performance-computing/accessing-and-installing-software), which you should read through anyway if considering adding new software to the cluster, but I'll summarize below:
+
+1. Be executable on Linux
+  The cluster runs Scientific Linux 7, a distribution of Unix. If you're familiar with Unix computers already, this part gets a lot easier for you.
+2. Run in command line mode
+  Perhaps obviously, the cluster doesn't have a graphical user interface. No point-and-click or dragging things around - everything needs to go in and out via command line.
+3. Install without root/sudo/su privileges
+  Root users are the gods of the cluster, with absolute power. They're kinda like operating in "admin" mode on Windows computers, which means that you can do a lot of damage even accidentally. In theory, you could delete the entire cluster. Don't email the Savio people and ask for root privileges, or ask why you can't be a superuser even for a little bit. They're probably going to turn you down. Often, StackOverflow will recommend that you just hop into superuser mode - that's not an option here, but I'll detail a few workarounds below.
+4. Fit onto your storage space
+  Again, perhaps obvious, but each user only has 10GB of space on the cluster, and groups only a bit more. That might sound like a lot, but wouldn't you rather be able to store data in that space?
+5. Be complied by a normal compiler, like GCC or Intel
+  Shouldn't be a problem - most software comes with these compilers or at least the option to use them instead of the more esoteric versions
