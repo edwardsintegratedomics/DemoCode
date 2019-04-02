@@ -113,12 +113,12 @@ can be chained normally via commas:
 Okay, so you're not looking to install anything as simple as an R package. Well, Savio can handle additional software but there are a few restrictions due to the working environment. They're listed in more detail [here](https://research-it.berkeley.edu/services/high-performance-computing/accessing-and-installing-software), which you should read through anyway if considering adding new software to the cluster, but I'll summarize below:
 
 1. Be executable on Linux
-  The cluster runs Scientific Linux 7, a distribution of Unix. If you're familiar with Unix computers already, this part gets a lot easier for you.
+    The cluster runs Scientific Linux 7, a distribution of Unix. If you're familiar with Unix computers already, this part gets a lot easier for you.
 2. Run in command line mode
-  Perhaps obviously, the cluster doesn't have a graphical user interface. No point-and-click or dragging things around - everything needs to go in and out via command line.
+    Perhaps obviously, the cluster doesn't have a graphical user interface. No point-and-click or dragging things around - everything needs to go in and out via command line.
 3. Install without root/sudo/su privileges
-  Root users are the gods of the cluster, with absolute power. They're kinda like operating in "admin" mode on Windows computers, which means that you can do a lot of damage even accidentally. In theory, you could delete the entire cluster. Don't email the Savio people and ask for root privileges, or ask why you can't be a superuser even for a little bit. They're probably going to turn you down. Often, StackOverflow will recommend that you just hop into superuser mode - that's not an option here, but I'll detail a few workarounds below.
+    Root users are the gods of the cluster, with absolute power. They're kinda like operating in "admin" mode on Windows computers, which means that you can do a lot of damage even accidentally. In theory, you could delete the entire cluster. Don't email the Savio people and ask for root privileges, or ask why you can't be a superuser even for a little bit. They're probably going to turn you down. Often, StackOverflow will recommend that you just hop into superuser mode - that's not an option here, but I'll detail a few workarounds below.
 4. Fit onto your storage space
-  Again, perhaps obvious, but each user only has 10GB of space on the cluster, and groups only a bit more. That might sound like a lot, but wouldn't you rather be able to store data in that space?
+    Again, perhaps obvious, but each user only has 10GB of space on the cluster, and groups only a bit more. That might sound like a lot, but wouldn't you rather be able to store data in that space?
 5. Be complied by a normal compiler, like GCC or Intel
-  Shouldn't be a problem - most software comes with these compilers or at least the option to use them instead of the more esoteric versions
+    Shouldn't be a problem - most software comes with these compilers or at least the option to use them instead of the more esoteric versions.
