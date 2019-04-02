@@ -48,10 +48,8 @@ However, we're also running our own, personally installed packages on Savio (mos
 
 > export R_LIBS_USER=$R_LIBS_USER:/global/home/groups/fc_surfwill/modfiles
 
-> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/home/groups/fc_surfwill/modfiles/netcdf-base/lib
 
-
-The first of these lines adds the "modfiles" folder, where I've installed the new modules, to the module path. The next one does the same for the R packages (aka libraries). We're actually hosting the NetCDF software on Savio right now, so the last line tells Savio where to find that program.
+The first of these lines adds the "modfiles" folder, where I've installed the new modules, to the module path. The next one does the same for the R packages (aka libraries).
 
 ### Editing your .bashrc file
 
@@ -68,8 +66,6 @@ Then, add the following lines to the end of the document
 >export MODULEPATH=$MODULEPATH:/global/home/groups/fc_surfwill/modfiles
 
 >export R_LIBS_USER=$R_LIBS_USER:/global/home/groups/fc_surfwill/modfiles
-
->export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/global/home/groups/fc_surfwill/modfiles/netcdf-base/lib
 
 And Ctrl-O to save and Ctrl-X to exit.
 
